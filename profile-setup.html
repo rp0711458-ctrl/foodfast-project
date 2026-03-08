@@ -199,7 +199,7 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     }
     
     try {
-        const response = await fetch('https://foodfast-website.vercel.app/user/profile', {
+        const response = await fetch('/api/user/profile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

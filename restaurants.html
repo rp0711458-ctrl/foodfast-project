@@ -80,7 +80,7 @@ function updateNavigation() {
 // Load all restaurants with their products
 async function loadRestaurantsWithProducts() {
     try {
-        const restaurantsResponse = await fetch('https://foodfast-website.vercel.app/restaurants');
+        const restaurantsResponse = await fetch('/api/restaurants');
         const restaurantsData = await restaurantsResponse.json();
         
         const container = document.getElementById('restaurantsContainer');
@@ -93,7 +93,7 @@ async function loadRestaurantsWithProducts() {
         
         // Load each restaurant with its products
         for (const restaurant of restaurantsData.restaurants) {
-            const productsResponse = await fetch(`https://foodfast-website.vercel.app/restaurants/${restaurant._id}/products`);
+            const productsResponse = await fetch(`/api/restaurants/${restaurant._id}/products`);
             const productsData = await productsResponse.json();
             
             const stars = '⭐'.repeat(Math.floor(restaurant.rating));
