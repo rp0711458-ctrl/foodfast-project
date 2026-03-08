@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🍕 FoodFast</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="restaurants.html">Restaurants</a>
+            <a href="cart.html" id="cartLink" style="display:none;">Cart<span id="cartCount">0</span></a>
+            <a href="contact.html">Contact</a>
+            <div id="userSection" style="display:none;">
+                <div class="user-dropdown">
+                    <a href="#" class="user-avatar" onclick="toggleDropdown(event)">
+                        <span id="userInitials">U</span>
+                    </a>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="user-profile.html">👤 My Profile</a>
+                        <a href="my-orders.html">📦 My Orders</a>
+                        <a href="#" onclick="logout()">🚪 Sign Out</a>
+                    </div>
+                </div>
+            </div>
+            <a href="signin.html" id="signinLink">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Navigation functions
+function updateNavigation() {
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    
+    if (userId) {
+        document.getElementById('userSection').style.display = 'flex';
+        document.getElementById('signinLink').style.display = 'none';
+        document.getElementById('cartLink').style.display = 'block';
+        
+        if (userName) {
+            const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            document.getElementById('userInitials').textContent = initials;
+        }
+        
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        document.getElementById('cartCount').textContent = cart.length;
+    } else {
+        document.getElementById('userSection').style.display = 'none';
+        document.getElementById('signinLink').style.display = 'block';
+        document.getElementById('cartLink').style.display = 'none';
+    }
+}
+
+function toggleDropdown(e) {
+    e.preventDefault();
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.user-avatar') && !event.target.matches('.user-avatar span')) {
+        const dropdowns = document.getElementsByClassName('dropdown-menu');
+        for (let i = 0; i < dropdowns.length; i++) {
+            dropdowns[i].classList.remove('show');
+        }
+    }
+}
+
+updateNavigation();
+</script>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <span id="avatarInitials">U</span>
+            </div>
+            <div>
+                <h1 id="profileTitle">My Profile</h1>
+                <p style="color: #7f8c8d; margin: 0;">Manage your account information</p>
+            </div>
+        </div>
+
+        <h2 style="font-size: 20px; color: #282c3f; margin: 25px 0 15px 0; padding-top: 20px; border-top: 2px solid #f0f0f5;">Personal Information</h2>
+        
+        <div class="info-row">
+            <span class="info-label">Full Name</span>
+            <span class="info-value" id="displayName">Loading...</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email Address</span>
+            <span class="info-value" id="displayEmail">Loading...</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Phone Number</span>
+            <span class="info-value" id="displayPhone">Not provided</span>
+        </div>
+
+        <h2 style="font-size: 20px; color: #282c3f; margin: 25px 0 15px 0; padding-top: 20px; border-top: 2px solid #f0f0f5;">Delivery Address</h2>
+        
+        <div id="addressDisplay" style="padding: 15px; background: #f8f9fa; border-radius: 8px; color: #3d4152;">
+            <p style="margin: 0;">No address saved yet</p>
+        </div>
+
+        <h2 style="font-size: 20px; color: #282c3f; margin: 25px 0 15px 0; padding-top: 20px; border-top: 2px solid #f0f0f5;">Location</h2>
+        
+        <div id="locationDisplay" style="padding: 15px; background: #f8f9fa; border-radius: 8px; color: #3d4152;">
+            <p style="margin: 0;">No location saved</p>
+        </div>
+        <div id="mapContainer" style="display:none; padding: 15px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
+            <p style="margin: 5px 0; color: #3d4152;">📍 Latitude: <span id="displayLat"></span></p>
+            <p style="margin: 5px 0; color: #3d4152;">📍 Longitude: <span id="displayLng"></span></p>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button onclick="editProfile()" style="flex: 1; padding: 14px; background: #fc8019; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;">
+                ✏️ Edit Profile
+            </button>
+            <button onclick="window.location.href='my-orders.html'" style="flex: 1; padding: 14px; background: #60b246; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;">
+                📦 My Orders
+            </button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+    <p><a href="admin.html" class="admin-link">Admin Login</a></p>
+</footer>
+
+<script>
+// Check if user is logged in
+const userId = localStorage.getItem('userId');
+if (!userId) {
+    alert('Please login first');
+    window.location.href = 'signin.html';
+}
+
+// Load user profile
+async function loadProfile() {
+    try {
+        const response = await fetch(`https://foodfast-website.vercel.app/user/profile/${userId}`);
+        const data = await response.json();
+        
+        if (response.ok && data.profile) {
+            const profile = data.profile;
+            
+            // Display personal info
+            const fullName = profile.fullName || 'Not provided';
+            document.getElementById('displayName').textContent = fullName;
+            document.getElementById('displayEmail').textContent = data.email || 'Not provided';
+            document.getElementById('displayPhone').textContent = profile.phone || 'Not provided';
+            
+            // Set avatar initials
+            if (fullName !== 'Not provided') {
+                const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                document.getElementById('avatarInitials').textContent = initials;
+            }
+            
+            // Display address
+            if (profile.address) {
+                const addr = profile.address;
+                document.getElementById('addressDisplay').innerHTML = `
+                    <p style="margin: 5px 0; font-weight: 600; color: #282c3f;">${addr.house}</p>
+                    <p style="margin: 5px 0;">${addr.street}</p>
+                    <p style="margin: 5px 0;">${addr.city}, ${addr.state} - ${addr.pincode}</p>
+                    ${addr.landmark ? `<p>Landmark: ${addr.landmark}</p>` : ''}
+                `;
+            }
+            
+            // Display location
+            if (profile.location && profile.location.latitude) {
+                document.getElementById('locationDisplay').style.display = 'none';
+                document.getElementById('mapContainer').style.display = 'block';
+                document.getElementById('displayLat').textContent = profile.location.latitude;
+                document.getElementById('displayLng').textContent = profile.location.longitude;
+            }
+        } else {
+            // Profile not complete
+            if (confirm('Your profile is incomplete. Would you like to complete it now?')) {
+                window.location.href = 'profile-setup.html';
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Error loading profile');
+    }
+}
+
+function editProfile() {
+    window.location.href = 'profile-setup.html';
+}
+
+function logout() {
+    localStorage.clear();
+    alert('Logged out successfully');
+    window.location.href = 'signin.html';
+}
+
+// Load profile on page load
+loadProfile();
+</script>
+
+</body>
+</html>

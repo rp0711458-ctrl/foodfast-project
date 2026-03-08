@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodFast - API URL Updater</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #fc8019 0%, #60b246 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #fc8019;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .step {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .step h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .step p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #fc8019;
+        }
+        button {
+            background: #fc8019;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #e67316;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .file-list {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .file-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🔧</div>
+        <h1>FoodFast API URL Updater</h1>
+        <p class="subtitle">Update all HTML files to use your Railway backend URL</p>
+
+        <div class="warning">
+            ⚠️ <strong>Important:</strong> This tool generates the commands you need to run. Copy and paste them into your terminal or manually update the files.
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Get Your Railway URL</h3>
+            <p>After deploying to Railway, copy your backend URL:</p>
+            <input type="text" id="railwayUrl" placeholder="https://foodfast-production-xxxx.up.railway.app" value="https://">
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Files to Update</h3>
+            <p>These HTML files need to be updated:</p>
+            <div class="file-list">
+                <div class="file-item">✓ index.html</div>
+                <div class="file-item">✓ restaurants.html</div>
+                <div class="file-item">✓ signin.html</div>
+                <div class="file-item">✓ signup.html</div>
+                <div class="file-item">✓ profile-setup.html</div>
+                <div class="file-item">✓ user-profile.html</div>
+                <div class="file-item">✓ cart.html</div>
+                <div class="file-item">✓ payment.html</div>
+                <div class="file-item">✓ my-orders.html</div>
+                <div class="file-item">✓ contact.html</div>
+                <div class="file-item">✓ admin.html</div>
+                <div class="file-item">✓ admin-dashboard.html</div>
+                <div class="file-item">✓ admin-phone-verify.html</div>
+            </div>
+        </div>
+
+        <button onclick="generateInstructions()">Generate Update Instructions</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function generateInstructions() {
+            const railwayUrl = document.getElementById('railwayUrl').value.trim();
+            const result = document.getElementById('result');
+
+            if (!railwayUrl || railwayUrl === 'https://') {
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = '❌ Please enter your Railway URL first!';
+                return;
+            }
+
+            if (!railwayUrl.startsWith('https://')) {
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = '❌ Railway URL must start with https://';
+                return;
+            }
+
+            result.className = 'result success';
+            result.style.display = 'block';
+            result.innerHTML = `
+                <h3 style="margin-bottom: 15px;">✅ Instructions Generated!</h3>
+                
+                <p style="margin-bottom: 10px;"><strong>Option 1: Use the automated script</strong></p>
+                <p style="margin-bottom: 10px;">1. Open <code>update-api-urls.js</code></p>
+                <p style="margin-bottom: 10px;">2. Change line 7 to:</p>
+                <code style="display: block; padding: 10px; margin: 10px 0;">const RAILWAY_URL = '${railwayUrl}';</code>
+                <p style="margin-bottom: 10px;">3. Run in terminal:</p>
+                <code style="display: block; padding: 10px; margin: 10px 0;">node update-api-urls.js</code>
+                
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+                
+                <p style="margin-bottom: 10px;"><strong>Option 2: Manual find & replace</strong></p>
+                <p style="margin-bottom: 10px;">In each HTML file, replace:</p>
+                <code style="display: block; padding: 10px; margin: 10px 0;">http://localhost:3000</code>
+                <p style="margin-bottom: 10px;">With:</p>
+                <code style="display: block; padding: 10px; margin: 10px 0;">${railwayUrl}</code>
+                
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+                
+                <p style="margin-top: 20px;"><strong>Next Steps:</strong></p>
+                <p>1. Update all files</p>
+                <p>2. Upload to GitHub</p>
+                <p>3. Wait 2-3 minutes</p>
+                <p>4. Test your website! 🎉</p>
+            `;
+        }
+    </script>
+</body>
+</html>

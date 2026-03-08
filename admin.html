@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🔐 FoodFast Admin</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+    </div>
+</nav>
+
+<div class="auth-page">
+    <div class="auth-container admin-auth">
+        <div class="auth-left">
+            <h1>🔐 Admin Portal</h1>
+            <p>Secure access to manage your FoodFast platform</p>
+            <div class="auth-features">
+                <div class="feature-item">
+                    <span>👥</span>
+                    <div>
+                        <h3>User Management</h3>
+                        <p>Manage users and profiles</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span>🏪</span>
+                    <div>
+                        <h3>Restaurant Control</h3>
+                        <p>Add restaurants and products</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span>📦</span>
+                    <div>
+                        <h3>Order Management</h3>
+                        <p>Track and manage orders</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span>📊</span>
+                    <div>
+                        <h3>Analytics</h3>
+                        <p>View reports and insights</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="auth-right">
+            <div class="admin-login-form">
+                <div class="admin-logo">🔐</div>
+                <h2>Admin Login</h2>
+                <p class="admin-subtitle">Enter your admin credentials to access the dashboard</p>
+                
+                <form id="adminLoginForm">
+                    <div class="input-group">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="adminEmail" placeholder="Admin Email" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="adminPassword" placeholder="Admin Password" required>
+                    </div>
+                    
+                    <button type="submit" class="admin-login-btn">
+                        <span>Login to Dashboard</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    
+                    <div class="admin-credentials-box">
+                        <div class="credentials-header">
+                            <span>ℹ️</span>
+                            <strong>Default Credentials</strong>
+                        </div>
+                        <div class="credentials-info">
+                            <p><strong>Email:</strong> admin@foodfast.com</p>
+                            <p><strong>Password:</strong> Admin@2026</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+</footer>
+
+<script>
+// Check if phone is verified
+const phoneVerified = sessionStorage.getItem('adminPhoneVerified');
+const verificationTime = sessionStorage.getItem('verificationTime');
+
+// Check if verification is still valid (30 minutes)
+const isVerificationValid = verificationTime && (Date.now() - parseInt(verificationTime)) < 30 * 60 * 1000;
+
+if (!phoneVerified || !isVerificationValid) {
+    // Redirect to phone verification
+    alert('⚠️ Phone verification required for admin access');
+    window.location.href = 'admin-phone-verify.html';
+}
+
+document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const adminEmail = document.getElementById('adminEmail').value;
+    const adminPassword = document.getElementById('adminPassword').value;
+    
+    try {
+        const response = await fetch('https://foodfast-website.vercel.app/admin/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: adminEmail, password: adminPassword })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(data.message);
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminEmail', data.email);
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        alert('Error connecting to server');
+        console.error(error);
+    }
+});
+</script>
+
+</body>
+</html>

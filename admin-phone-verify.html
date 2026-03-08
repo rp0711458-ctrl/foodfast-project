@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Phone Verification - FoodFast</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="form-container" style="max-width: 500px;">
+            <h2 style="text-align: center; color: #fc8019; margin-bottom: 10px;">🔐 Admin Verification</h2>
+            <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">Secure access for administrators only</p>
+
+            <!-- Step 1: Enter Phone Number -->
+            <div id="phoneStep">
+                <form id="phoneForm">
+                    <div class="form-group">
+                        <label>📱 Enter Admin Phone Number</label>
+                        <input type="tel" id="phoneNumber" required 
+                               placeholder="Enter 10-digit phone number"
+                               pattern="[0-9]{10}"
+                               maxlength="10"
+                               style="font-size: 18px; letter-spacing: 2px;">
+                        <small style="color: #7f8c8d;">Registered admin phone only</small>
+                    </div>
+                    <button type="submit" class="btn-primary" style="background: #fc8019;">
+                        Send OTP →
+                    </button>
+                </form>
+
+                <div style="margin-top: 25px; padding: 20px; background: #fff5ed; border-radius: 10px; border-left: 4px solid #fc8019;">
+                    <p style="margin: 0; color: #3d4152; font-size: 14px;">
+                        <strong>ℹ️ Demo Admin Phone:</strong> 7249154558
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 2: Verify OTP -->
+            <div id="otpStep" style="display:none;">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <p style="color: #3d4152; font-size: 16px; margin-bottom: 5px;">
+                        OTP sent to <strong style="color: #fc8019;" id="displayPhone"></strong>
+                    </p>
+                    <button onclick="goBackToPhone()" style="background: none; border: none; color: #667eea; cursor: pointer; text-decoration: underline; font-size: 14px;">
+                        ← Change Number
+                    </button>
+                </div>
+
+                <form id="otpForm">
+                    <div class="form-group">
+                        <label style="text-align: center; display: block;">Enter 6-Digit OTP</label>
+                        <div class="otp-input-container">
+                            <input type="text" class="otp-box" maxlength="1" id="otp1" pattern="[0-9]">
+                            <input type="text" class="otp-box" maxlength="1" id="otp2" pattern="[0-9]">
+                            <input type="text" class="otp-box" maxlength="1" id="otp3" pattern="[0-9]">
+                            <input type="text" class="otp-box" maxlength="1" id="otp4" pattern="[0-9]">
+                            <input type="text" class="otp-box" maxlength="1" id="otp5" pattern="[0-9]">
+                            <input type="text" class="otp-box" maxlength="1" id="otp6" pattern="[0-9]">
+                        </div>
+                        <p id="otpDisplay" style="text-align: center; color: #fc8019; font-weight: 600; margin-top: 15px; font-size: 18px;"></p>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="background: #60b246;">
+                        ✓ Verify & Continue
+                    </button>
+                    
+                    <button type="button" onclick="resendOTP()" class="btn-secondary" style="margin-top: 15px; width: 100%;">
+                        🔄 Resend OTP
+                    </button>
+                </form>
+
+                <div id="timer" style="text-align: center; margin-top: 15px; color: #7f8c8d; font-size: 14px;"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <a href="index.html" style="color: #667eea; text-decoration: none; font-size: 14px;">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .otp-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .otp-box {
+            width: 50px;
+            height: 55px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: #fc8019;
+        }
+
+        .otp-box:focus {
+            outline: none;
+            border-color: #fc8019;
+            box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.1);
+            transform: scale(1.05);
+        }
+
+        .otp-box:valid {
+            border-color: #60b246;
+            background: #f0fff4;
+        }
+
+        @media (max-width: 768px) {
+            .otp-box {
+                width: 45px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+
+    <script>
+        const ADMIN_PHONE = '7249154558';
+        let currentPhone = '';
+        let generatedOTP = '';
+        let timerInterval;
+
+        // Auto-focus next OTP input
+        document.querySelectorAll('.otp-box').forEach((input, index, inputs) => {
+            input.addEventListener('input', (e) => {
+                // Only allow numbers
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                const digits = pastedData.split('').slice(0, 6);
+                digits.forEach((digit, i) => {
+                    if (inputs[i]) {
+                        inputs[i].value = digit;
+                    }
+                });
+                if (digits.length > 0) {
+                    inputs[Math.min(digits.length, 5)].focus();
+                }
+            });
+        });
+
+        // Step 1: Send OTP
+        document.getElementById('phoneForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            
+            if (phoneNumber.length !== 10) {
+                alert('❌ Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // Check if phone is registered admin phone
+            if (phoneNumber !== ADMIN_PHONE) {
+                alert('❌ This phone number is not registered as admin. Please contact support.');
+                return;
+            }
+            
+            currentPhone = phoneNumber;
+            
+            // Generate 6-digit OTP
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Show OTP on screen (for demo - in production, send via SMS)
+            document.getElementById('otpDisplay').textContent = `Demo OTP: ${generatedOTP}`;
+            
+            // Switch to OTP step
+            document.getElementById('phoneStep').style.display = 'none';
+            document.getElementById('otpStep').style.display = 'block';
+            document.getElementById('displayPhone').textContent = phoneNumber;
+            
+            // Focus first OTP input
+            setTimeout(() => document.getElementById('otp1').focus(), 100);
+            
+            // Start timer
+            startTimer(300); // 5 minutes
+            
+            alert(`✅ OTP sent successfully!\n\nDemo OTP: ${generatedOTP}\n\n(In production, this will be sent via SMS)`);
+        });
+
+        // Step 2: Verify OTP
+        document.getElementById('otpForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const otp = Array.from({length: 6}, (_, i) => 
+                document.getElementById(`otp${i + 1}`).value
+            ).join('');
+            
+            if (otp.length !== 6) {
+                alert('❌ Please enter complete 6-digit OTP');
+                return;
+            }
+            
+            if (otp === generatedOTP) {
+                // Store verification in session
+                sessionStorage.setItem('adminPhoneVerified', 'true');
+                sessionStorage.setItem('verifiedPhone', currentPhone);
+                sessionStorage.setItem('verificationTime', Date.now());
+                
+                clearInterval(timerInterval);
+                
+                alert('✅ Phone verified successfully!\n\nRedirecting to admin login...');
+                
+                // Redirect to admin login
+                window.location.href = 'admin.html';
+            } else {
+                alert('❌ Invalid OTP. Please try again.');
+                // Clear OTP inputs
+                for (let i = 1; i <= 6; i++) {
+                    document.getElementById(`otp${i}`).value = '';
+                }
+                document.getElementById('otp1').focus();
+            }
+        });
+
+        function resendOTP() {
+            // Generate new OTP
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('otpDisplay').textContent = `Demo OTP: ${generatedOTP}`;
+            
+            // Clear inputs
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`otp${i}`).value = '';
+            }
+            document.getElementById('otp1').focus();
+            
+            // Restart timer
+            clearInterval(timerInterval);
+            startTimer(300);
+            
+            alert(`✅ New OTP sent!\n\nDemo OTP: ${generatedOTP}`);
+        }
+
+        function goBackToPhone() {
+            clearInterval(timerInterval);
+            document.getElementById('otpStep').style.display = 'none';
+            document.getElementById('phoneStep').style.display = 'block';
+            document.getElementById('phoneNumber').value = currentPhone;
+            
+            // Clear OTP inputs
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`otp${i}`).value = '';
+            }
+        }
+
+        function startTimer(seconds) {
+            let timeLeft = seconds;
+            const timerElement = document.getElementById('timer');
+            
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerElement.textContent = `⏱️ OTP expires in ${minutes}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = '⏰ OTP expired. Please request a new one.';
+                    timerElement.style.color = '#d32f2f';
+                }
+                
+                timeLeft--;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

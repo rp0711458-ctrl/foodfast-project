@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🍕 FoodFast</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="restaurants.html">Restaurants</a>
+            <a href="#about" onclick="scrollToAbout(event)">About</a>
+            <a href="cart.html" id="cartLink" style="display:none;">Cart<span id="cartCount">0</span></a>
+            <a href="contact.html">Contact</a>
+            <div id="userSection" style="display:none;">
+                <div class="user-dropdown">
+                    <a href="#" class="user-avatar" onclick="toggleDropdown(event)">
+                        <span id="userInitials">U</span>
+                    </a>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="user-profile.html">👤 My Profile</a>
+                        <a href="my-orders.html">📦 My Orders</a>
+                        <a href="#" onclick="logout()">🚪 Sign Out</a>
+                    </div>
+                </div>
+            </div>
+            <a href="signin.html" id="signinLink">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Check if user is logged in and update nav
+function updateNavigation() {
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    
+    if (userId) {
+        document.getElementById('userSection').style.display = 'flex';
+        document.getElementById('signinLink').style.display = 'none';
+        document.getElementById('cartLink').style.display = 'block';
+        
+        if (userName) {
+            const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            document.getElementById('userInitials').textContent = initials;
+        }
+        
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        document.getElementById('cartCount').textContent = cart.length;
+    } else {
+        document.getElementById('userSection').style.display = 'none';
+        document.getElementById('signinLink').style.display = 'block';
+        document.getElementById('cartLink').style.display = 'none';
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        alert('Logged out successfully');
+        window.location.href = 'index.html';
+    }
+}
+
+function toggleDropdown(e) {
+    e.preventDefault();
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.user-avatar') && !event.target.matches('.user-avatar span')) {
+        const dropdowns = document.getElementsByClassName('dropdown-menu');
+        for (let i = 0; i < dropdowns.length; i++) {
+            dropdowns[i].classList.remove('show');
+        }
+    }
+}
+
+updateNavigation();
+
+// Smooth scroll to about section
+function scrollToAbout(e) {
+    e.preventDefault();
+    const aboutSection = document.querySelector('.about-section');
+    if (aboutSection) {
+        aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Load restaurants
+async function loadRestaurants() {
+    try {
+        const response = await fetch('https://foodfast-website.vercel.app/restaurants');
+        const data = await response.json();
+        
+        const container = document.getElementById('restaurantContainer');
+        container.innerHTML = '';
+        
+        if (data.restaurants && data.restaurants.length > 0) {
+            data.restaurants.forEach(restaurant => {
+                const stars = '⭐'.repeat(Math.floor(restaurant.rating));
+                const card = `
+                    <div class="restaurant-card" onclick="viewRestaurant('${restaurant._id}', '${restaurant.name}')">
+                        <h3>${restaurant.name}</h3>
+                        <p>${restaurant.cuisine} • ₹${restaurant.priceForOne} for one</p>
+                        <span>${stars} ${restaurant.rating}</span>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        } else {
+            container.innerHTML = '<p style="text-align:center; color:#666;">No restaurants available</p>';
+        }
+    } catch (error) {
+        console.error('Error loading restaurants:', error);
+    }
+}
+
+// View restaurant menu
+function viewRestaurant(restaurantId, restaurantName) {
+    localStorage.setItem('selectedRestaurant', JSON.stringify({ id: restaurantId, name: restaurantName }));
+    window.location.href = 'restaurants.html#' + restaurantId;
+}
+
+// Search functionality
+let searchTimeout;
+async function handleSearch() {
+    clearTimeout(searchTimeout);
+    
+    const query = document.getElementById('searchInput').value.trim();
+    
+    if (query.length < 2) {
+        document.getElementById('searchResults').style.display = 'none';
+        document.getElementById('restaurantsSection').style.display = 'block';
+        return;
+    }
+    
+    searchTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(`https://foodfast-website.vercel.app/search?query=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            
+            displaySearchResults(data);
+        } catch (error) {
+            console.error('Search error:', error);
+        }
+    }, 300);
+}
+
+function displaySearchResults(data) {
+    const resultsDiv = document.getElementById('searchResultsContent');
+    const searchResultsSection = document.getElementById('searchResults');
+    const restaurantsSection = document.getElementById('restaurantsSection');
+    
+    resultsDiv.innerHTML = '';
+    
+    if ((!data.restaurants || data.restaurants.length === 0) && 
+        (!data.products || data.products.length === 0)) {
+        resultsDiv.innerHTML = '<p style="text-align:center; color:#666;">No results found</p>';
+        searchResultsSection.style.display = 'block';
+        restaurantsSection.style.display = 'none';
+        return;
+    }
+    
+    // Display restaurants
+    if (data.restaurants && data.restaurants.length > 0) {
+        resultsDiv.innerHTML += '<h3 style="margin: 20px 0;">Restaurants</h3>';
+        const restaurantGrid = document.createElement('div');
+        restaurantGrid.className = 'restaurant-container';
+        
+        data.restaurants.forEach(restaurant => {
+            const stars = '⭐'.repeat(Math.floor(restaurant.rating));
+            restaurantGrid.innerHTML += `
+                <div class="restaurant-card" onclick="viewRestaurant('${restaurant._id}', '${restaurant.name}')">
+                    <h3>${restaurant.name}</h3>
+                    <p>${restaurant.cuisine} • ₹${restaurant.priceForOne} for one</p>
+                    <span>${stars} ${restaurant.rating}</span>
+                </div>
+            `;
+        });
+        resultsDiv.appendChild(restaurantGrid);
+    }
+    
+    // Display products
+    if (data.products && data.products.length > 0) {
+        resultsDiv.innerHTML += '<h3 style="margin: 30px 0 20px 0;">Menu Items</h3>';
+        const productGrid = document.createElement('div');
+        productGrid.className = 'menu-container';
+        
+        data.products.forEach(product => {
+            const stars = '⭐'.repeat(Math.floor(product.rating));
+            productGrid.innerHTML += `
+                <div class="menu-card">
+                    <img src="${product.image}" alt="${product.name}">
+                    <div class="menu-info">
+                        <h3>${product.name}</h3>
+                        ${product.restaurantName ? `<p style="color:#666; font-size:14px;">📍 ${product.restaurantName}</p>` : ''}
+                        <p class="rating">${stars} (${product.rating})</p>
+                        <p class="price">₹${product.price}</p>
+                        <button onclick="addToCartFromSearch('${product._id}', '${product.name}', '${product.category}', ${product.price}, '${product.image}')">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+        });
+        resultsDiv.appendChild(productGrid);
+    }
+    
+    searchResultsSection.style.display = 'block';
+    restaurantsSection.style.display = 'none';
+}
+
+function addToCartFromSearch(id, name, category, price, image) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert('Please login to add items to cart');
+        window.location.href = 'signin.html';
+        return;
+    }
+    
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingItem = cart.find(item => item.name === name);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            name: name,
+            category: category,
+            price: price,
+            image: image,
+            quantity: 1
+        });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${name} added to cart! 🛒`);
+    
+    // Update cart count
+    const cartCount = document.getElementById('cartCount');
+    if (cartCount) {
+        cartCount.textContent = cart.length;
+    }
+}
+
+// Load restaurants on page load
+loadRestaurants();
+</script>
+
+<div class="hero">
+    <div class="hero-content">
+        <h1>Order food online from your favorite restaurants</h1>
+        <p>Get your food delivered in minutes 🚀</p>
+        <div class="hero-features">
+            <div class="hero-feature">
+                <span class="feature-icon">⚡</span>
+                <span>Fast Delivery</span>
+            </div>
+            <div class="hero-feature">
+                <span class="feature-icon">🍽️</span>
+                <span>1000+ Dishes</span>
+            </div>
+            <div class="hero-feature">
+                <span class="feature-icon">⭐</span>
+                <span>Top Rated</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search-box">
+    <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search for restaurants, cuisines or dishes..." onkeyup="handleSearch()">
+    </div>
+</div>
+
+<!-- OFFERS BANNER -->
+<section class="offers-section">
+    <div class="offers-container">
+        <div class="offer-card">
+            <div class="offer-icon">🎉</div>
+            <div class="offer-content">
+                <h3>50% OFF</h3>
+                <p>On your first order</p>
+            </div>
+        </div>
+        <div class="offer-card">
+            <div class="offer-icon">🚚</div>
+            <div class="offer-content">
+                <h3>Free Delivery</h3>
+                <p>Orders above ₹199</p>
+            </div>
+        </div>
+        <div class="offer-card">
+            <div class="offer-icon">💰</div>
+            <div class="offer-content">
+                <h3>Cashback</h3>
+                <p>Up to ₹100 back</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SEARCH RESULTS -->
+<div id="searchResults" style="display:none; max-width: 1200px; margin: 20px auto; padding: 0 30px;">
+    <h2 style="margin-bottom: 20px;">Search Results</h2>
+    <div id="searchResultsContent"></div>
+</div>
+
+<!-- POPULAR RESTAURANTS -->
+<section class="popular-restaurants" id="popularSection">
+    <h2>Popular Restaurants Near You</h2>
+    <div class="popular-container">
+        <div class="popular-card" onclick="viewRestaurant('popular1', 'Pizza Palace')">
+            <div class="popular-image">🍕</div>
+            <div class="popular-info">
+                <h3>Pizza Palace</h3>
+                <p class="popular-cuisine">Italian, Pizza</p>
+                <div class="popular-meta">
+                    <span class="popular-rating">⭐ 4.5</span>
+                    <span class="popular-price">₹300 for one</span>
+                </div>
+                <div class="popular-badge">🔥 Trending</div>
+            </div>
+        </div>
+        
+        <div class="popular-card" onclick="viewRestaurant('popular2', 'Burger King')">
+            <div class="popular-image">🍔</div>
+            <div class="popular-info">
+                <h3>Burger King</h3>
+                <p class="popular-cuisine">American, Burgers</p>
+                <div class="popular-meta">
+                    <span class="popular-rating">⭐ 4.3</span>
+                    <span class="popular-price">₹250 for one</span>
+                </div>
+                <div class="popular-badge">⚡ Fast Delivery</div>
+            </div>
+        </div>
+        
+        <div class="popular-card" onclick="viewRestaurant('popular3', 'Biryani House')">
+            <div class="popular-image">🍛</div>
+            <div class="popular-info">
+                <h3>Biryani House</h3>
+                <p class="popular-cuisine">Indian, Biryani</p>
+                <div class="popular-meta">
+                    <span class="popular-rating">⭐ 4.7</span>
+                    <span class="popular-price">₹350 for one</span>
+                </div>
+                <div class="popular-badge">⭐ Top Rated</div>
+            </div>
+        </div>
+        
+        <div class="popular-card" onclick="viewRestaurant('popular4', 'Sushi Express')">
+            <div class="popular-image">🍣</div>
+            <div class="popular-info">
+                <h3>Sushi Express</h3>
+                <p class="popular-cuisine">Japanese, Sushi</p>
+                <div class="popular-meta">
+                    <span class="popular-rating">⭐ 4.6</span>
+                    <span class="popular-price">₹500 for one</span>
+                </div>
+                <div class="popular-badge">💎 Premium</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories">
+    <h2>Popular Categories</h2>
+
+    <div class="category-container">
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38">
+            <h3>Pizza</h3>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349">
+            <h3>Burger</h3>
+        </div>
+
+        <div class="category-card">
+            <img src="data:image/jpeg;base64,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">
+            <h3>Biryani</h3>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1529042410759-befb1204b468">
+            <h3>Desserts</h3>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1">
+            <h3>Pasta</h3>
+        </div>
+
+        <div class="category-card">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445">
+            <h3>Noodles</h3>
+        </div>
+    </div>
+</section>
+
+<!-- RESTAURANTS -->
+<section class="restaurants" id="restaurantsSection">
+    <h2>Popular Restaurants</h2>
+
+    <div class="restaurant-container" id="restaurantContainer">
+        <!-- Restaurants will be loaded dynamically -->
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="why-choose-us">
+    <h2>Why Choose FoodFast?</h2>
+    <div class="features-grid">
+        <div class="feature-box">
+            <div class="feature-icon-large">⚡</div>
+            <h3>Lightning Fast Delivery</h3>
+            <p>Get your food delivered in 30 minutes or less. We value your time!</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon-large">🍽️</div>
+            <h3>Wide Variety</h3>
+            <p>Choose from 1000+ dishes across multiple cuisines and restaurants.</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon-large">💳</div>
+            <h3>Easy Payment</h3>
+            <p>Multiple payment options including cash on delivery, cards, and UPI.</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon-large">🔒</div>
+            <h3>Safe & Secure</h3>
+            <p>Your data is protected with industry-standard encryption.</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon-large">⭐</div>
+            <h3>Top Rated Service</h3>
+            <p>Rated 4.5+ stars by thousands of satisfied customers.</p>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon-large">🎁</div>
+            <h3>Great Offers</h3>
+            <p>Enjoy exclusive deals, discounts, and cashback on every order.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT SECTION -->
+<section class="about-section" id="about">
+    <div class="about-container">
+        <div class="about-content">
+            <h2>About FoodFast</h2>
+            <p class="about-intro">Your favorite food, delivered fast and fresh!</p>
+            <p>FoodFast is your go-to platform for ordering delicious food from the best restaurants in your city. We connect you with top-rated eateries and ensure your meals arrive hot and fresh at your doorstep.</p>
+            
+            <div class="about-stats">
+                <div class="stat-box">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Restaurants</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Happy Customers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">100K+</div>
+                    <div class="stat-label">Orders Delivered</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">30min</div>
+                    <div class="stat-label">Avg Delivery Time</div>
+                </div>
+            </div>
+
+            <div class="about-mission">
+                <h3>Our Mission</h3>
+                <p>To make food ordering simple, fast, and enjoyable for everyone. We believe great food should be accessible to all, delivered with care and speed.</p>
+            </div>
+        </div>
+        <div class="about-image">
+            <div class="about-emoji">🍕🍔🍛🍣🍰</div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+    <p><a href="admin-phone-verify.html" class="admin-link">Admin Login</a></p>
+</footer>
+</body>
+</html>

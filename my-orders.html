@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🍕 FoodFast</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="restaurants.html">Restaurants</a>
+            <a href="cart.html">Cart <span id="cartCount">0</span></a>
+            <a href="my-orders.html">My Orders</a>
+            <a href="contact.html">Contact</a>
+            <div id="userSection" style="display:none;">
+                <a href="user-profile.html" class="user-avatar">
+                    <span id="userInitials">U</span>
+                </a>
+            </div>
+            <a href="signin.html" id="signinLink">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<div class="orders-container">
+    <div class="orders-header">
+        <h1>📦 My Orders</h1>
+        <p>Track and manage your orders</p>
+    </div>
+    
+    <div id="emptyOrders" class="empty-orders" style="display:none;">
+        <div class="empty-icon">📦</div>
+        <h2>No orders yet</h2>
+        <p>Start ordering delicious food from your favorite restaurants</p>
+        <a href="restaurants.html" class="order-now-btn">Browse Restaurants</a>
+    </div>
+
+    <div id="ordersContent">
+        <!-- Orders will be loaded here -->
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+    <p><a href="admin.html" class="admin-link">Admin Login</a></p>
+</footer>
+
+<script>
+// Check if user is logged in
+const userId = localStorage.getItem('userId');
+if (!userId) {
+    alert('Please login to view your orders');
+    window.location.href = 'signin.html';
+}
+
+// Update navigation
+function updateNavigation() {
+    const userName = localStorage.getItem('userName');
+    if (userId) {
+        document.getElementById('userSection').style.display = 'flex';
+        document.getElementById('signinLink').style.display = 'none';
+        if (userName) {
+            const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            document.getElementById('userInitials').textContent = initials;
+        }
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        document.getElementById('cartCount').textContent = cart.length;
+    }
+}
+
+// Load orders from database
+async function loadOrders() {
+    try {
+        const response = await fetch(`https://foodfast-website.vercel.app/user/orders/${userId}`);
+        const data = await response.json();
+        
+        if (!data.orders || data.orders.length === 0) {
+            document.getElementById('emptyOrders').style.display = 'block';
+            document.getElementById('ordersContent').style.display = 'none';
+            return;
+        }
+        
+        document.getElementById('emptyOrders').style.display = 'none';
+        document.getElementById('ordersContent').style.display = 'block';
+        
+        const ordersContent = document.getElementById('ordersContent');
+        ordersContent.innerHTML = '';
+        
+        data.orders.forEach((order) => {
+            const orderDate = new Date(order.createdAt).toLocaleString();
+            const itemsList = order.items.map(item => 
+                `<li>${item.productName || item.name} x${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}</li>`
+            ).join('');
+            
+            // Status badge color classes
+            let statusClass = 'pending';
+            if (order.status === 'Accepted') statusClass = 'confirmed';
+            else if (order.status === 'Delivered') statusClass = 'delivered';
+            else if (order.status === 'Rejected') statusClass = 'rejected';
+            
+            const orderCard = `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id-section">
+                            <h3 class="order-id">Order #${order.orderId}</h3>
+                            <p class="order-date">📅 ${orderDate}</p>
+                        </div>
+                        <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                    </div>
+                    
+                    <div class="order-body">
+                        <div class="order-items-section">
+                            <h4>🍽️ Items Ordered</h4>
+                            <ul class="order-items-list">${itemsList}</ul>
+                        </div>
+                        
+                        <div class="order-details-section">
+                            <div class="detail-row">
+                                <span class="detail-icon">📍</span>
+                                <div>
+                                    <strong>Delivery Address</strong>
+                                    <p>${order.customerAddress}</p>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-icon">💳</span>
+                                <div>
+                                    <strong>Payment Method</strong>
+                                    <p>${order.paymentMethod.toUpperCase()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>₹${order.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery</span>
+                            <span>₹${order.delivery.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (5%)</span>
+                            <span>₹${order.tax.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total">
+                            <span>Total Amount</span>
+                            <strong>₹${order.total.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <button class="btn-reorder" onclick='reorder(${JSON.stringify(order.items)})'>
+                            <span>🔄</span>
+                            <span>Reorder</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            ordersContent.innerHTML += orderCard;
+        });
+    } catch (error) {
+        console.error('Error loading orders:', error);
+        alert('Error loading orders. Please try again.');
+    }
+}
+
+function reorder(items) {
+    if (confirm('Add these items to your cart?')) {
+        // Convert items to cart format
+        const cartItems = items.map(item => ({
+            name: item.productName || item.name,
+            category: item.category || 'Food',
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image || 'https://via.placeholder.com/300'
+        }));
+        
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+        alert('Items added to cart!');
+        window.location.href = 'cart.html';
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        alert('Logged out successfully');
+        window.location.href = 'index.html';
+    }
+}
+
+// Initialize
+updateNavigation();
+loadOrders();
+</script>
+
+</body>
+</html>

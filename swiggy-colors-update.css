@@ -1,0 +1,279 @@
+/* SWIGGY COLOR SCHEME UPDATE */
+
+/* Update all gradient buttons to Swiggy orange/green */
+.qty-btn {
+    background: #fc8019 !important;
+    box-shadow: 0 2px 8px rgba(252, 128, 25, 0.3) !important;
+}
+
+.qty-btn:hover {
+    background: #e67316 !important;
+    box-shadow: 0 4px 12px rgba(252, 128, 25, 0.4) !important;
+}
+
+.continue-shopping {
+    background: #fc8019 !important;
+    box-shadow: 0 2px 8px rgba(252, 128, 25, 0.3) !important;
+}
+
+.continue-shopping:hover {
+    background: #e67316 !important;
+    box-shadow: 0 4px 12px rgba(252, 128, 25, 0.4) !important;
+}
+
+.item-count {
+    background: #fc8019 !important;
+}
+
+.summary-divider {
+    background: linear-gradient(90deg, transparent, #fc8019, transparent) !important;
+}
+
+.summary-row.total .summary-value {
+    color: #fc8019 !important;
+}
+
+.btn-place-order {
+    background: #60b246 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(96, 178, 70, 0.3) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-place-order:hover {
+    background: #57a03f !important;
+    box-shadow: 0 4px 12px rgba(96, 178, 70, 0.4) !important;
+}
+
+/* Payment page colors */
+.pay-btn {
+    background: #60b246 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(96, 178, 70, 0.3) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pay-btn:hover {
+    background: #57a03f !important;
+    box-shadow: 0 4px 12px rgba(96, 178, 70, 0.4) !important;
+}
+
+.payment-method:has(input:checked) {
+    border-color: #fc8019 !important;
+    background: rgba(252, 128, 25, 0.05) !important;
+    box-shadow: 0 2px 8px rgba(252, 128, 25, 0.2) !important;
+}
+
+.payment-method input[type="radio"]:checked + .payment-method-content {
+    color: #fc8019 !important;
+}
+
+.payment-card input:focus, .payment-card textarea:focus {
+    border-color: #fc8019 !important;
+    box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.1) !important;
+}
+
+.summary-details .summary-row.total span:last-child {
+    color: #fc8019 !important;
+}
+
+/* Admin colors */
+.admin-header {
+    background: linear-gradient(135deg, #fc8019 0%, #e67316 100%) !important;
+}
+
+.admin-logo {
+    background: #fc8019 !important;
+    box-shadow: 0 4px 12px rgba(252, 128, 25, 0.4) !important;
+}
+
+.admin-login-btn {
+    background: #fc8019 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(252, 128, 25, 0.3) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-login-btn:hover {
+    background: #e67316 !important;
+    box-shadow: 0 4px 12px rgba(252, 128, 25, 0.4) !important;
+}
+
+.admin-credentials-box {
+    background: rgba(252, 128, 25, 0.05) !important;
+    border: 2px solid rgba(252, 128, 25, 0.2) !important;
+}
+
+.credentials-info strong {
+    color: #fc8019 !important;
+}
+
+.input-group input:focus {
+    border-color: #fc8019 !important;
+    box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.1) !important;
+}
+
+.stat-card::before {
+    background: #fc8019 !important;
+}
+
+.stat-users .stat-icon {
+    background: #fc8019 !important;
+}
+
+.stat-restaurants .stat-icon {
+    background: #e67316 !important;
+}
+
+.stat-products .stat-icon {
+    background: #ffa500 !important;
+}
+
+.stat-orders .stat-icon {
+    background: #60b246 !important;
+}
+
+.stat-revenue .stat-icon {
+    background: #fc8019 !important;
+}
+
+.tab-btn.active {
+    background: #fc8019 !important;
+    box-shadow: 0 2px 8px rgba(252, 128, 25, 0.3) !important;
+}
+
+.tab-btn:hover {
+    color: #fc8019 !important;
+}
+
+.data-table thead {
+    background: #fc8019 !important;
+}
+
+.btn-add {
+    background: #60b246 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(96, 178, 70, 0.3) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-add:hover {
+    background: #57a03f !important;
+    box-shadow: 0 4px 12px rgba(96, 178, 70, 0.4) !important;
+}
+
+.btn-delete {
+    background: #d32f2f !important;
+    border-radius: 5px !important;
+    box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3) !important;
+}
+
+.btn-delete:hover {
+    background: #c62828 !important;
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4) !important;
+}
+
+.product-admin-card:hover {
+    border-color: #fc8019 !important;
+    box-shadow: 0 4px 16px rgba(252, 128, 25, 0.2) !important;
+}
+
+.product-admin-card .price {
+    color: #fc8019 !important;
+}
+
+.product-admin-card .rating {
+    background: #60b246 !important;
+}
+
+.form-actions button[type="submit"] {
+    background: #fc8019 !important;
+    border-radius: 8px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-actions button[type="submit"]:hover {
+    background: #e67316 !important;
+}
+
+.status-select:focus {
+    border-color: #fc8019 !important;
+}
+
+.status-pending {
+    background: #ffa500 !important;
+    color: white !important;
+}
+
+.status-accepted {
+    background: #60b246 !important;
+}
+
+.status-rejected {
+    background: #d32f2f !important;
+}
+
+.status-delivered {
+    background: #fc8019 !important;
+}
+
+/* Auth pages */
+.auth-left {
+    background: linear-gradient(135deg, #fc8019 0%, #e67316 100%) !important;
+}
+
+.section-header h2::after {
+    background: #fc8019 !important;
+}
+
+.order-card::before {
+    background: #fc8019 !important;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 16px rgba(252, 128, 25, 0.2) !important;
+}
+
+.order-total {
+    border-top: 3px solid #fc8019 !important;
+}
+
+.contact-item {
+    background: rgba(252, 128, 25, 0.05) !important;
+    border-left: 4px solid #fc8019 !important;
+}
+
+.contact-item:hover {
+    box-shadow: 0 2px 12px rgba(252, 128, 25, 0.2) !important;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #fc8019 0%, #e67316 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Remove transform animations for cleaner Swiggy style */
+.menu-info button:hover,
+.form-container button:hover,
+.checkout-btn:hover,
+.pay-btn:hover,
+.admin-login-btn:hover,
+.btn-add:hover,
+.btn-delete:hover {
+    transform: none !important;
+}
+
+.category-card:hover, .restaurant-card:hover, .menu-card:hover {
+    transform: translateY(-5px) !important;
+}
+
+.cart-item:hover, .order-card:hover, .product-admin-card:hover {
+    transform: translateY(-3px) !important;
+}

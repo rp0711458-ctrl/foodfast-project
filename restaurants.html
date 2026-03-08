@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurants - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🍕 FoodFast</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="restaurants.html">Restaurants</a>
+            <a href="contact.html">Contact</a>
+            <a href="cart.html" id="cartLink" style="display:none;">Cart<span id="cartCount">0</span></a>
+            <div id="userSection" style="display:none;">
+                <div class="user-dropdown">
+                    <a href="#" class="user-avatar" onclick="toggleDropdown(event)">
+                        <span id="userInitials">AS</span>
+                    </a>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="user-profile.html">👤 My Profile</a>
+                        <a href="my-orders.html">📦 My Orders</a>
+                        <a href="#" onclick="logout()">🚪 Sign Out</a>
+                    </div>
+                </div>
+            </div>
+            <a href="signin.html" id="signinLink">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<script src="navigation.js"></script>
+
+<div class="section-header">
+    <h2>All Restaurants</h2>
+    <p>Discover amazing food from top restaurants</p>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
+    <div id="restaurantsContainer">
+        <!-- Restaurants will be loaded here -->
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+    <p><a href="admin.html" class="admin-link">Admin Login</a></p>
+</footer>
+
+<script>
+const userId = localStorage.getItem('userId');
+
+// Update navigation
+function updateNavigation() {
+    const userName = localStorage.getItem('userName');
+    
+    if (userId) {
+        document.getElementById('userSection').style.display = 'flex';
+        document.getElementById('signinLink').style.display = 'none';
+        document.getElementById('cartLink').style.display = 'block';
+        
+        if (userName) {
+            const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            document.getElementById('userInitials').textContent = initials;
+        }
+        
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        document.getElementById('cartCount').textContent = cart.length;
+    } else {
+        document.getElementById('userSection').style.display = 'none';
+        document.getElementById('signinLink').style.display = 'block';
+        document.getElementById('cartLink').style.display = 'none';
+    }
+}
+
+// Load all restaurants with their products
+async function loadRestaurantsWithProducts() {
+    try {
+        const restaurantsResponse = await fetch('https://foodfast-website.vercel.app/restaurants');
+        const restaurantsData = await restaurantsResponse.json();
+        
+        const container = document.getElementById('restaurantsContainer');
+        container.innerHTML = '';
+        
+        if (!restaurantsData.restaurants || restaurantsData.restaurants.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#666;">No restaurants available</p>';
+            return;
+        }
+        
+        // Load each restaurant with its products
+        for (const restaurant of restaurantsData.restaurants) {
+            const productsResponse = await fetch(`https://foodfast-website.vercel.app/restaurants/${restaurant._id}/products`);
+            const productsData = await productsResponse.json();
+            
+            const stars = '⭐'.repeat(Math.floor(restaurant.rating));
+            
+            const restaurantSection = document.createElement('div');
+            restaurantSection.style.marginBottom = '60px';
+            
+            // Restaurant header
+            const header = `
+                <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 30px; border: 1px solid #E9E9EB;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                        <div>
+                            <h2 style="font-size: 28px; margin-bottom: 10px; color: #282C3F; font-weight: 700;">${restaurant.name}</h2>
+                            <p style="color: #686B78; font-size: 15px; margin: 5px 0;">${restaurant.cuisine} • ₹${restaurant.priceForOne} for one</p>
+                            <div style="display: inline-flex; align-items: center; background: #60B246; color: white; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin: 8px 0;">
+                                ⭐ ${restaurant.rating}
+                            </div>
+                            ${restaurant.address ? `<p style="color: #686B78; font-size: 14px; margin: 8px 0;">📍 ${restaurant.address}</p>` : ''}
+                            ${restaurant.phone ? `<p style="color: #686B78; font-size: 14px; margin: 5px 0;">📞 ${restaurant.phone}</p>` : ''}
+                        </div>
+                        ${restaurant.openTime && restaurant.closeTime ? `
+                            <div style="text-align: right;">
+                                <p style="color: #60B246; font-weight: 600; font-size: 15px;">🕒 Open Now</p>
+                                <p style="color: #686B78; font-size: 14px;">${restaurant.openTime} - ${restaurant.closeTime}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            restaurantSection.innerHTML = header;
+            
+            // Products grid
+            if (productsData.products && productsData.products.length > 0) {
+                const productsGrid = document.createElement('div');
+                productsGrid.className = 'menu-container';
+                
+                productsData.products.forEach(product => {
+                    const productCard = `
+                        <div class="menu-card">
+                            <img src="${product.image}" alt="${product.name}">
+                            <div class="menu-info">
+                                <h3>${product.name}</h3>
+                                <p style="color:#686B78; font-size:14px; margin: 5px 0;">${product.category}</p>
+                                <div class="rating">⭐ ${product.rating}</div>
+                                <p class="price">₹${product.price}</p>
+                                <button onclick="addToCart('${product._id}', '${product.name}', '${product.category}', ${product.price}, '${product.image}', '${restaurant.name}')">Add to Cart</button>
+                            </div>
+                        </div>
+                    `;
+                    productsGrid.innerHTML += productCard;
+                });
+                
+                restaurantSection.appendChild(productsGrid);
+            } else {
+                restaurantSection.innerHTML += '<p style="text-align:center; color:#666; padding: 20px;">No items available</p>';
+            }
+            
+            container.appendChild(restaurantSection);
+        }
+    } catch (error) {
+        console.error('Error loading restaurants:', error);
+        document.getElementById('restaurantsContainer').innerHTML = '<p style="text-align:center; color:#666;">Error loading restaurants</p>';
+    }
+}
+
+// Add to cart function
+function addToCart(id, name, category, price, image, restaurantName) {
+    if (!userId) {
+        alert('Please login to add items to cart');
+        window.location.href = 'signin.html';
+        return;
+    }
+    
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingItem = cart.find(item => item.name === name);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            productId: id,
+            name: name,
+            category: category,
+            price: price,
+            image: image,
+            restaurantName: restaurantName,
+            quantity: 1
+        });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Update cart count
+    const cartCount = document.getElementById('cartCount');
+    if (cartCount) {
+        cartCount.textContent = cart.length;
+    }
+    
+    alert(`${name} added to cart! 🛒`);
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        alert('Logged out successfully');
+        window.location.href = 'index.html';
+    }
+}
+
+function toggleDropdown(e) {
+    e.preventDefault();
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.user-avatar') && !event.target.matches('.user-avatar span')) {
+        const dropdowns = document.getElementsByClassName('dropdown-menu');
+        for (let i = 0; i < dropdowns.length; i++) {
+            dropdowns[i].classList.remove('show');
+        }
+    }
+}
+
+// Initialize
+updateNavigation();
+loadRestaurantsWithProducts();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🍕 FoodFast</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="restaurants.html">Restaurants</a>
+            <a href="contact.html">Contact</a>
+            <a href="signin.html">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<div class="auth-page">
+    <div class="auth-container">
+        <!-- Left Side - Features -->
+        <div class="auth-left" style="background: linear-gradient(135deg, #fc8019 0%, #e67316 100%);">
+            <div class="auth-content">
+                <h1 style="font-size: 42px; margin-bottom: 20px;">Join FoodFast! 🎉</h1>
+                <p style="font-size: 18px; margin-bottom: 40px; opacity: 0.95;">Create an account and start ordering delicious food today</p>
+                
+                <div class="auth-features">
+                    <div class="feature-item">
+                        <span style="font-size: 32px;">🎁</span>
+                        <div>
+                            <h3>Exclusive Offers</h3>
+                            <p>Get special discounts for new users</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span style="font-size: 32px;">⭐</span>
+                        <div>
+                            <h3>Rate & Review</h3>
+                            <p>Share your experience with others</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span style="font-size: 32px;">📱</span>
+                        <div>
+                            <h3>Track Orders</h3>
+                            <p>Real-time order tracking</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span style="font-size: 32px;">🚀</span>
+                        <div>
+                            <h3>Fast Delivery</h3>
+                            <p>Get your food in 30 minutes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.15); border-radius: 12px; backdrop-filter: blur(10px);">
+                    <p style="font-size: 16px; margin-bottom: 10px;">✨ <strong>Special Offer!</strong></p>
+                    <p style="font-size: 14px; opacity: 0.95;">Get 50% OFF on your first order</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Form -->
+        <div class="auth-right">
+            <div class="form-container" style="margin: 0; max-width: 100%;">
+                <div style="text-align: center; margin-bottom: 35px;">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #fc8019 0%, #e67316 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 20px rgba(252, 128, 25, 0.3);">
+                        <span style="font-size: 40px;">🍕</span>
+                    </div>
+                    <h2 style="font-size: 32px; color: #282c3f; margin-bottom: 8px;">Create Account</h2>
+                    <p style="color: #7f8c8d; font-size: 15px;">Sign up to get started with FoodFast</p>
+                </div>
+                
+                <form id="signupForm">
+                    <div class="input-with-icon">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="name" placeholder="Full Name" required style="padding-left: 45px;">
+                    </div>
+
+                    <div class="input-with-icon">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="email" placeholder="Email Address" required style="padding-left: 45px;">
+                    </div>
+
+                    <div class="input-with-icon">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" placeholder="Password (min 6 characters)" required minlength="6" style="padding-left: 45px;">
+                    </div>
+
+                    <div class="input-with-icon">
+                        <span class="input-icon">✓</span>
+                        <input type="password" id="confirm-password" placeholder="Confirm Password" required style="padding-left: 45px;">
+                    </div>
+
+                    <div style="margin: 20px 0;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4152;">
+                                I agree to the <a href="#" style="color: #fc8019; text-decoration: none;">Terms & Conditions</a>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" style="background: linear-gradient(135deg, #60b246 0%, #57a03f 100%); padding: 16px; font-size: 17px; box-shadow: 0 4px 15px rgba(96, 178, 70, 0.4);">
+                        Create Account →
+                    </button>
+                    
+                    <div class="divider" style="margin: 25px 0;">
+                        <span style="background: white; padding: 0 15px; color: #7f8c8d; font-size: 14px;">or</span>
+                    </div>
+                    
+                    <p style="text-align: center; color: #3d4152; font-size: 15px;">
+                        Already have an account? 
+                        <a href="signin.html" style="color: #fc8019; font-weight: 700; text-decoration: none;">Sign In</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+</footer>
+
+<style>
+.input-with-icon {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    z-index: 1;
+}
+
+.divider {
+    position: relative;
+    text-align: center;
+    border-top: 1px solid #e0e6ed;
+}
+
+.divider span {
+    position: relative;
+    top: -12px;
+}
+
+.auth-features {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feature-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(5px);
+}
+
+.feature-item h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.feature-item p {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-left {
+        padding: 40px 25px;
+    }
+    
+    .auth-left h1 {
+        font-size: 32px;
+    }
+}
+</style>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    // Validation
+    if (password.length < 6) {
+        alert('❌ Password must be at least 6 characters long');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        alert('❌ Passwords do not match');
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://foodfast-website.vercel.app/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('✅ ' + data.message + '\n\n🎉 Welcome to FoodFast!');
+            // Store user info and redirect to profile setup
+            localStorage.setItem('userId', data.userId);
+            localStorage.setItem('userName', data.name);
+            window.location.href = 'profile-setup.html';
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (error) {
+        alert('❌ Error connecting to server. Please try again.');
+        console.error(error);
+    }
+});
+
+// Real-time password match validation
+document.getElementById('confirm-password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (confirmPassword && password !== confirmPassword) {
+        this.style.borderColor = '#d32f2f';
+    } else if (confirmPassword && password === confirmPassword) {
+        this.style.borderColor = '#60b246';
+    } else {
+        this.style.borderColor = '#e0e6ed';
+    }
+});
+</script>
+
+</body>
+</html>

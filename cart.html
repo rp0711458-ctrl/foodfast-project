@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - FoodFast</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <h2>🍕 FoodFast</h2>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="restaurants.html">Restaurants</a>
+            <a href="cart.html">Cart <span id="cartCount">0</span></a>
+            <a href="user-profile.html">Profile</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="cart-container">
+    <div class="cart-header">
+        <h1>🛒 My Shopping Cart</h1>
+        <p>Review your items before checkout</p>
+    </div>
+    
+    <div id="emptyCart" class="empty-cart">
+        <div class="empty-cart-icon">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added anything to your cart yet</p>
+        <a href="restaurants.html" class="continue-shopping">Browse Restaurants</a>
+    </div>
+
+    <div id="cartContent" style="display:none;">
+        <div class="cart-layout">
+            <div class="cart-items-section">
+                <div class="section-title">
+                    <h2>Cart Items</h2>
+                    <span id="itemCount" class="item-count">0 items</span>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart items will be loaded here -->
+                </div>
+            </div>
+
+            <div class="cart-summary-section">
+                <div class="cart-summary">
+                    <h2>Order Summary</h2>
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span class="summary-value">₹<span id="cartSubtotal">0</span></span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span class="summary-value">₹40</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (5%)</span>
+                            <span class="summary-value">₹<span id="cartTax">0</span></span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total">
+                            <span>Total Amount</span>
+                            <span class="summary-value">₹<span id="cartTotal">0</span></span>
+                        </div>
+                    </div>
+                    <button class="checkout-btn" onclick="proceedToCheckout()">
+                        <span>Proceed to Checkout</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <div class="secure-checkout">
+                        <span>🔒</span>
+                        <span>Secure Checkout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 FoodFast | All Rights Reserved</p>
+    <p><a href="admin.html" class="admin-link">Admin Login</a></p>
+</footer>
+
+<script>
+// Check if user is logged in
+const userId = localStorage.getItem('userId');
+if (!userId) {
+    alert('Please login to view your cart');
+    window.location.href = 'signin.html';
+}
+
+// Load cart from localStorage
+function loadCart() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    if (cart.length === 0) {
+        document.getElementById('emptyCart').style.display = 'block';
+        document.getElementById('cartContent').style.display = 'none';
+        document.getElementById('cartCount').textContent = '0';
+        return;
+    }
+    
+    document.getElementById('emptyCart').style.display = 'none';
+    document.getElementById('cartContent').style.display = 'block';
+    document.getElementById('cartCount').textContent = cart.length;
+    
+    const cartItemsDiv = document.getElementById('cartItems');
+    cartItemsDiv.innerHTML = '';
+    
+    let subtotal = 0;
+    
+    cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        
+        const itemHTML = `
+            <div class="cart-item">
+                <div class="cart-item-image">
+                    <img src="${item.image}" alt="${item.name}">
+                </div>
+                <div class="cart-item-info">
+                    <h3>${item.name}</h3>
+                    <p class="item-category">${item.category}</p>
+                    <p class="item-price">₹${item.price} each</p>
+                </div>
+                <div class="cart-item-actions">
+                    <div class="quantity-controls">
+                        <button onclick="updateQuantity(${index}, -1)" class="qty-btn">−</button>
+                        <span class="qty-value">${item.quantity}</span>
+                        <button onclick="updateQuantity(${index}, 1)" class="qty-btn">+</button>
+                    </div>
+                    <div class="item-total-price">₹${itemTotal.toFixed(2)}</div>
+                    <button class="remove-btn" onclick="removeItem(${index})">
+                        <span>🗑️</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        cartItemsDiv.innerHTML += itemHTML;
+    });
+    
+    document.getElementById('itemCount').textContent = cart.length + (cart.length === 1 ? ' item' : ' items');
+    
+    const tax = subtotal * 0.05;
+    const total = subtotal + 40 + tax;
+    
+    document.getElementById('cartSubtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('cartTax').textContent = tax.toFixed(2);
+    document.getElementById('cartTotal').textContent = total.toFixed(2);
+}
+
+function updateQuantity(index, change) {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart[index].quantity += change;
+    
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    loadCart();
+}
+
+function removeItem(index) {
+    if (confirm('Remove this item from cart?')) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        loadCart();
+    }
+}
+
+function proceedToCheckout() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (cart.length === 0) {
+        alert('Your cart is empty');
+        return;
+    }
+    
+    // Save cart data for payment page
+    const subtotal = parseFloat(document.getElementById('cartSubtotal').textContent);
+    const tax = parseFloat(document.getElementById('cartTax').textContent);
+    const total = parseFloat(document.getElementById('cartTotal').textContent);
+    
+    localStorage.setItem('checkoutData', JSON.stringify({
+        items: cart,
+        subtotal: subtotal,
+        delivery: 40,
+        tax: tax,
+        total: total
+    }));
+    
+    window.location.href = 'payment.html';
+}
+
+function logout() {
+    localStorage.clear();
+    alert('Logged out successfully');
+    window.location.href = 'signin.html';
+}
+
+// Update cart count in nav
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    document.getElementById('cartCount').textContent = cart.length;
+}
+
+// Load cart on page load
+loadCart();
+</script>
+
+</body>
+</html>
